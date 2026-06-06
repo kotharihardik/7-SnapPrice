@@ -1,0 +1,46 @@
+{
+  "Austin TX": {
+    "trend": "+3.1% over 3 months",
+    "source": "ATTOM fixture",
+    "comps": [
+      {"address": "4821 Shoal Creek Blvd, Austin TX", "sale_price": 589000, "sqft": 1920, "beds": 3, "baths": 2, "sold_days_ago": 18},
+      {"address": "2103 Barton Hills Dr, Austin TX",  "sale_price": 612000, "sqft": 2050, "beds": 4, "baths": 2, "sold_days_ago": 32},
+      {"address": "911 Brentwood St, Austin TX",       "sale_price": 554000, "sqft": 1750, "beds": 3, "baths": 2, "sold_days_ago": 45},
+      {"address": "1502 Enfield Rd, Austin TX",        "sale_price": 635000, "sqft": 2200, "beds": 4, "baths": 3, "sold_days_ago": 22},
+      {"address": "308 W 30th St, Austin TX",          "sale_price": 570000, "sqft": 1850, "beds": 3, "baths": 2, "sold_days_ago": 60},
+      {"address": "7714 Lazy Creek Dr, Austin TX",     "sale_price": 525000, "sqft": 1680, "beds": 3, "baths": 2, "sold_days_ago": 75}
+    ]
+  },
+  "Dallas TX": {
+    "trend": "+1.8% over 3 months",
+    "source": "ATTOM fixture",
+    "comps": [
+      {"address": "4120 Lomo Alto Dr, Dallas TX",   "sale_price": 428000, "sqft": 1900, "beds": 3, "baths": 2, "sold_days_ago": 25},
+      {"address": "6314 Gaston Ave, Dallas TX",      "sale_price": 445000, "sqft": 2000, "beds": 4, "baths": 2, "sold_days_ago": 40},
+      {"address": "2207 Swiss Ave, Dallas TX",       "sale_price": 398000, "sqft": 1700, "beds": 3, "baths": 2, "sold_days_ago": 55},
+      {"address": "8901 Midway Rd, Dallas TX",       "sale_price": 462000, "sqft": 2150, "beds": 4, "baths": 3, "sold_days_ago": 20},
+      {"address": "3315 Lovers Ln, Dallas TX",       "sale_price": 415000, "sqft": 1850, "beds": 3, "baths": 2, "sold_days_ago": 70}
+    ]
+  },
+  "Miami FL": {
+    "trend": "+4.2% over 3 months",
+    "source": "ATTOM fixture",
+    "comps": [
+      {"address": "2401 SW 22nd St, Miami FL",       "sale_price": 638000, "sqft": 1800, "beds": 3, "baths": 2, "sold_days_ago": 15},
+      {"address": "1120 NW 7th Ave, Miami FL",       "sale_price": 715000, "sqft": 2100, "beds": 4, "baths": 3, "sold_days_ago": 28},
+      {"address": "5530 SW 8th St, Miami FL",        "sale_price": 590000, "sqft": 1650, "beds": 3, "baths": 2, "sold_days_ago": 42},
+      {"address": "3020 Bird Ave, Miami FL",         "sale_price": 762000, "sqft": 2300, "beds": 4, "baths": 3, "sold_days_ago": 18},
+      {"address": "820 NE 125th St, Miami FL",       "sale_price": 628000, "sqft": 1900, "beds": 3, "baths": 2, "sold_days_ago": 50}
+    ]
+  },
+  "Default Metro": {
+    "trend": "+1.2% over 3 months",
+    "source": "ATTOM fixture",
+    "comps": [
+      {"address": "100 Oak St, Anytown USA",  "sale_price": 558000, "sqft": 1850, "beds": 3, "baths": 2, "sold_days_ago": 30},
+      {"address": "200 Elm Ave, Anytown USA", "sale_price": 572000, "sqft": 1920, "beds": 3, "baths": 2, "sold_days_ago": 45},
+      {"address": "300 Pine Rd, Anytown USA", "sale_price": 545000, "sqft": 1780, "beds": 3, "baths": 2, "sold_days_ago": 60},
+      {"address": "400 Maple Dr, Anytown USA","sale_price": 590000, "sqft": 2000, "beds": 4, "baths": 2, "sold_days_ago": 20}
+    ]
+  }
+}

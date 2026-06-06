@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>SnapPrice | Real-Time AVM with Explainability</title>
+    <meta
+      name="description"
+      content="SnapPrice turns a home address into a transparent valuation range, comparable sales, and plain-English explanations."
+    />
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <div class="page-shell">
+      <header class="hero">
+        <div class="brand-row">
+          <div class="brand-mark">S</div>
+          <div>
+            <h1>SnapPrice</h1>
+          </div>
+        </div>
+        <p class="hero-copy">Quick valuation demo.</p>
+      </header>
+
+      <!-- Architecture info removed for interview-ready UI -->
+
+      <main class="layout">
+        <section class="panel input-panel">
+          <div class="panel-heading">
+            <div>
+              <h2>Valuate a property</h2>
+            </div>
+          </div>
+
+          <form id="valuationForm" class="valuation-form">
+            <label>
+              <span>Property address</span>
+              <input id="address" name="address" type="text" placeholder="456 Maple Ave, Pasadena, CA 91103" required />
+            </label>
+
+            <div class="grid-4">
+              <label>
+                <span>Beds</span>
+                <input id="beds" name="beds" type="number" min="1" max="10" value="4" />
+              </label>
+              <label>
+                <span>Baths</span>
+                <input id="baths" name="baths" type="number" min="1" max="10" step="0.5" value="2.5" />
+              </label>
+              <label>
+                <span>Sqft</span>
+                <input id="sqft" name="sqft" type="number" min="400" max="10000" step="10" value="1840" />
+              </label>
+              <!-- year built removed for simplified UI -->
+            </div>
+            <!-- advanced inputs removed -->
+
+            <div class="action-row">
+              <button class="primary-btn" type="submit">Estimate value</button>
+              <p class="form-hint">No login. No waiting for an agent. Just a transparent valuation.</p>
+            </div>
+          </form>
+
+          <!-- presets removed -->
+        </section>
+
+        <section class="panel results-panel">
+          <div class="panel-heading">
+            <div>
+              <h2>Valuation report</h2>
+            </div>
+          </div>
+
+          <div id="loadingState" class="loading-state hidden">
+            <div class="spinner"></div>
+            <p>Fetching comps, adjusting features, and generating a transparent estimate...</p>
+          </div>
+
+          <div id="errorState" class="error-state hidden"></div>
+
+          <div id="report" class="report hidden">
+            <div class="estimate-card">
+              <div>
+                <p class="estimate-label">Estimated range</p>
+                <h3 id="estimateRange">$0 - $0</h3>
+                <p id="estimateMeta" class="muted"></p>
+              </div>
+              <div class="confidence-wrap">
+                <div id="confidenceBadge" class="confidence-badge">High confidence</div>
+                <p id="dataSource" class="muted"></p>
+              </div>
+            </div>
+
+            <div class="meter-card">
+              <div class="meter-labels">
+                <span id="lowLabel">Low</span>
+                <span id="midLabel">Mid</span>
+                <span id="highLabel">High</span>
+              </div>
+              <div class="price-meter" aria-hidden="true">
+                <div id="rangeBar" class="range-bar"></div>
+                <div id="midMarker" class="mid-marker"></div>
+                <div class="meter-glow"></div>
+              </div>
+            </div>
+
+            <!-- compact summary removed for clarity -->
+
+            <section>
+              <div class="section-head">
+                <h4>Comparable sales</h4>
+                <p class="muted">Recent sales within the selected metro area</p>
+              </div>
+              <div class="table-wrap">
+                <table>
+                  <thead>
+                    <tr>
+                      <th>Address</th>
+                      <th>Sale price</th>
+                      <th>Sqft</th>
+                      <th>Beds</th>
+                      <th>Baths</th>
+                      <th>Sold</th>
+                    </tr>
+                  </thead>
+                  <tbody id="compsTableBody"></tbody>
+                </table>
+              </div>
+            </section>
+
+            <section>
+              <div class="section-head">
+                <h4>Explainable factors</h4>
+                <p class="muted">Plain-English reasons the value moved up or down</p>
+              </div>
+              <div id="explanationsList" class="explanations-list"></div>
+            </section>
+          </div>
+        </section>
+      </main>
+
+      <!-- extra panels removed for interview-ready UI -->
+    </div>
+
+    <script src="app.js"></script>
+  </body>
+</html>
