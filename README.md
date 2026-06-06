@@ -1,4 +1,4 @@
-# SnapPrice — Real-time AVM for Snaphomz Hackathon
+# 7 -  SnapPrice - Real-time AVM for Snaphomz Hackathon
 
 ## What it does
 

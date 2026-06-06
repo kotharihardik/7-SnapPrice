@@ -3,11 +3,14 @@ from __future__ import annotations
 from dataclasses import dataclass, field
 from typing import Any
 import numpy as np
+from pathlib import Path
 
+# Optional model loader
+try:
+    import joblib
+except Exception:
+    joblib = None
 
-# ---------------------------------------------------------------------------
-# Data models
-# ---------------------------------------------------------------------------
 
 @dataclass
 class CompsItem:
@@ -45,10 +48,6 @@ class ValuationResult:
     mode: str
 
 
-# ---------------------------------------------------------------------------
-# Market profiles
-# ---------------------------------------------------------------------------
-
 MARKETS: dict[str, MarketProfile] = {
     "austin": MarketProfile(
         "Austin TX", 575000, 490000, 680000, 0.82,
@@ -85,10 +84,6 @@ MARKETS: dict[str, MarketProfile] = {
 }
 
 
-# ---------------------------------------------------------------------------
-# AVM Engine
-# ---------------------------------------------------------------------------
-
 class AVMEngine:
     """
     Lightweight AVM that uses comparable sales to produce a hedonic price estimate.
@@ -97,12 +92,28 @@ class AVMEngine:
     Uses SHAP-style additive decomposition for plain-English explanations.
     """
 
-    # Adjustment coefficients (dollars per unit)
     BED_PREMIUM     =  8_000   # per extra bedroom vs median comp
     BATH_PREMIUM    = 12_000   # per extra bathroom vs median comp
     SQFT_PREMIUM    =    180   # per extra sq-ft vs median comp  (≈ avg $/sqft)
     RECENCY_BONUS   =     50   # per day fresher the sale is vs 90-day baseline
     RECENCY_CUTOFF  =     90   # days – sales older than this get a discount
+
+    def __init__(self, model_path: str | None = None):
+        self.model = None
+        self.scaler = None
+        if joblib is None:
+            return
+        try:
+            model_file = (
+                Path(model_path) if model_path else Path(__file__).resolve().parent / "model.joblib"
+            )
+            if model_file.exists():
+                payload = joblib.load(model_file)
+                self.model = payload.get("model")
+                self.scaler = payload.get("scaler")
+        except Exception:
+            self.model = None
+            self.scaler = None
 
     def value(
         self,
@@ -127,12 +138,62 @@ class AVMEngine:
         comps: list[CompsItem],
         market: MarketProfile,
     ) -> ValuationResult:
+        X = np.array([[c.sqft, c.beds, c.baths, c.sold_days_ago] for c in comps], dtype=float)
+        y = np.array([c.sale_price for c in comps], dtype=float)
+        # Lazy-load pretrained model if available.
+        if joblib is not None and getattr(self, "model", None) is None:
+            try:
+                model_file = Path(__file__).resolve().parent / "model.joblib"
+                if model_file.exists():
+                    payload = joblib.load(model_file)
+                    self.model = payload.get("model")
+                    self.scaler = payload.get("scaler")
+            except Exception:
+                pass
+
+        if getattr(self, "model", None) is not None and getattr(self, "scaler", None) is not None:
+            model = self.model
+            scaler = self.scaler
+            subj_vec = np.array([[
+                subject.get("sqft", 1800),
+                subject.get("beds", 3),
+                subject.get("baths", 2),
+                0,
+            ]], dtype=float)
+            subj_scaled = scaler.transform(subj_vec)
+            predicted = float(model.predict(subj_scaled)[0])
+
+            base_pred = float(model.predict(scaler.transform(
+                np.array([[np.mean(X[:, 0]), np.mean(X[:, 1]), np.mean(X[:, 2]), np.mean(X[:, 3])]])
+            ))[0])
+
+            adjustments = self._shap_adjustments(model, scaler, subj_vec[0], X, predicted, base_pred)
+
+            median_comp_price = float(np.median(y))
+            confidence = self._confidence(len(comps), predicted, y)
+
+            low = int(predicted * 0.94)
+            high = int(predicted * 1.06)
+
+            explanation = self._explain(subject, adjustments, predicted, median_comp_price, market, len(comps), mode="ml")
+
+            return ValuationResult(
+                estimated_value=int(predicted),
+                low_estimate=low,
+                high_estimate=high,
+                confidence=round(confidence, 2),
+                price_per_sqft=round(predicted / max(subject.get("sqft", 1), 1), 2),
+                adjustments=adjustments,
+                explanation=explanation,
+                comps_used=len(comps),
+                market_trend=market.trend,
+                source=market.source,
+                mode="ml-pretrained",
+            )
+
         try:
             from sklearn.linear_model import Ridge
             from sklearn.preprocessing import StandardScaler
-
-            X = np.array([[c.sqft, c.beds, c.baths, c.sold_days_ago] for c in comps], dtype=float)
-            y = np.array([c.sale_price for c in comps], dtype=float)
 
             scaler = StandardScaler()
             Xs = scaler.fit_transform(X)
@@ -144,31 +205,24 @@ class AVMEngine:
                 subject.get("sqft", 1800),
                 subject.get("beds", 3),
                 subject.get("baths", 2),
-                0,   # subject is current, 0 days ago
+                0,
             ]], dtype=float)
             subj_scaled = scaler.transform(subj_vec)
             predicted = float(model.predict(subj_scaled)[0])
 
-            # SHAP-style: perturb each feature to get contribution
             base_pred = float(model.predict(scaler.transform(
-                np.array([[np.mean(X[:, 0]), np.mean(X[:, 1]),
-                           np.mean(X[:, 2]), np.mean(X[:, 3])]])
+                np.array([[np.mean(X[:, 0]), np.mean(X[:, 1]), np.mean(X[:, 2]), np.mean(X[:, 3])]])
             ))[0])
 
-            adjustments = self._shap_adjustments(
-                model, scaler, subj_vec[0], X, predicted, base_pred
-            )
+            adjustments = self._shap_adjustments(model, scaler, subj_vec[0], X, predicted, base_pred)
 
             median_comp_price = float(np.median(y))
             confidence = self._confidence(len(comps), predicted, y)
 
-            low  = int(predicted * 0.94)
+            low = int(predicted * 0.94)
             high = int(predicted * 1.06)
 
-            explanation = self._explain(
-                subject, adjustments, predicted, median_comp_price,
-                market, len(comps), mode="ml"
-            )
+            explanation = self._explain(subject, adjustments, predicted, median_comp_price, market, len(comps), mode="ml")
 
             return ValuationResult(
                 estimated_value=int(predicted),
